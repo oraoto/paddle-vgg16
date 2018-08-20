@@ -41,7 +41,9 @@ The model is converted from Caffe model [VGG_ILSVRC_16_layers](https://gist.gith
     predict = VGG16(include_top=True, infer=True).net(img)
 
     exe = fluid.Executor(fluid.CPUPlace())
-    fluid.io.load_params(exe, "models")
+    # All params are prefiexed with `vgg16` to avoid confliction,
+    # load params from `models` rather than `models/vgg16`
+    fluid.io.load_params(exe, "models") 
     ```
 
 5. Optional: Do inference on an image:
@@ -50,10 +52,10 @@ The model is converted from Caffe model [VGG_ILSVRC_16_layers](https://gist.gith
     python infer.py path/to/your/image
     ```
 
-    For example:
+    Example output:
 
     ```
-    python infer.py images/zebra_wikipedia.jpg
+    $ python infer.py images/zebra_wikipedia.jpg
     Using TensorFlow backend.
     zebra: 0.999809205532
     impala: 0.000101726756839
