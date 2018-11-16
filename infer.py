@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 
+import padddle.v2 as paddle
 import paddle.fluid as fluid
 import paddle.fluid.io as io
 import numpy as np
@@ -22,20 +23,26 @@ mean = mean.reshape([3, 1, 1])
 im = im - mean
 im = np.expand_dims(im, 0)
 
+## Create inference program
+infer_program = fluid.default_main_program().clone(for_test=True)
+
+
 ## Define the network
-input = fluid.layers.data('img', shape=[3, 224, 224])
-predict = VGG16(include_top=True, infer=True).net(input)
+with fluid.program_guard(infer_program):
+    input = fluid.layers.data('img', shape=[3, 224, 224])
+    predict = VGG16(include_top=True, infer=True).net(input)
 
 ## Create executor
 place = fluid.CUDAPlace(0) if fluid.core.is_compiled_with_cuda() else fluid.CPUPlace()
 exe = fluid.Executor(place)
+exe.run(fluid.default_startup_program())
 
 ## Load params
 io.load_params(exe, "models")
 
 ## Create inference program
-infer_program = fluid.default_main_program().clone(for_test=True)
-infer_program.prune(predict)
+# infer_program = fluid.default_main_program().clone(for_test=True)
+# infer_program.prune(predict)
 
 ## Run it
 p = exe.run(infer_program, fetch_list=[predict], feed={
