@@ -68,6 +68,6 @@ class VGG16():
         if not self.infer:
             y = fluid.layers.dropout(y, dropout_prob=0.5)
 
-        y = self._fc(y, size=4096, name="vgg16/fc8", act='softmax')
+        y = self._fc(y, size=1000, name="vgg16/fc8", act='softmax')
 
         return y
